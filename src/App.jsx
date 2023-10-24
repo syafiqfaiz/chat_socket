@@ -3,22 +3,25 @@ import mircLogo from './assets/mirc.jpg'
 import './App.css'
 import io from 'socket.io-client'; 
 
-const socket = io.connect('https://chat-be-b2wz.onrender.com' || 'http://localhost:3000'); 
-
 function App() {
   const [messages, setMessages] = useState([])
   const [currentUser, setCurrentUser] = useState('faiz')
   const [message, setMessage] = useState('')
-
+  const [socket, setSocket] = useState(null)
 
   useEffect(() => {
-    socket.on('receive_message', (data) => {
+    const newSocket = io.connect('https://chat-be-b2wz.onrender.com' || 'http://localhost:3000'); 
+    newSocket.on('receive_message', (data) => {
       setMessages((state) => [
         ...state,
         data,
       ]);
     });
-  }, [socket]);
+
+    setSocket(newSocket)
+
+    return () => newSocket.disconnect()
+  }, []);
 
   const submitMessage = () => {
     socket.emit('send_message', { text: message, id: new Date().getTime(), sender: currentUser });
