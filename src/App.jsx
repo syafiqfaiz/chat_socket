@@ -1,10 +1,29 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import mircLogo from './assets/mirc.jpg'
 import './App.css'
+import io from 'socket.io-client'; 
+
+const socket = io.connect(process.env.SERVER_URL || 'http://localhost:3000'); 
 
 function App() {
-  const [messages, setMessages] = useState([{ id: 1, text: 'Hello', sender: 'faiz'}, { id: 2, text: 'World', sender: 'abu'}])
+  const [messages, setMessages] = useState([{ text: 'Welcome to Mirc', id: 1, sender: 'Mirc'},{ text: 'Welcome to 2', id: 2, sender: 'Mirc'}])
   const [currentUser, setCurrentUser] = useState('faiz')
+  const [message, setMessage] = useState('')
+
+
+  useEffect(() => {
+    socket.on('receive_message', (data) => {
+      setMessages((state) => [
+        ...state,
+        data,
+      ]);
+    });
+  }, [socket]);
+
+  const submitMessage = () => {
+    socket.emit('send_message', { text: message, id: new Date().getTime(), sender: currentUser });
+    setMessage('');
+  }
 
   return (
     <div className='container mx-auto py-10 '>
@@ -17,9 +36,9 @@ function App() {
         </h1>
       </div>
 
-      <div className="border border-black-800 rounded-lg h-64 mt-10 bg-slate-300 mx-auto w-full ">
+      <div className="border border-black-800 rounded-lg h-64 mt-10 bg-slate-300 mx-auto  overflow-auto mx-6">
         {messages.map((message) => (
-          <div key={message.id} className={ message.sender == currentUser ? "flex justify-end pt-1 px-1" : "flex justify-start pt-1 px-1" }>
+          <div key={message.id} className={ message.sender == currentUser ? "flex justify-end pt-1 px-2" : "flex justify-start pt-1 px-2" }>
             <div>
               <div
                 className={`relative max-w-xl rounded-xl px-4 py-2 ${message.sender == currentUser ? ' rounded-br-none bg-blue-600 ' : ' rounded-bl-none bg-gray-800'}`}>
@@ -35,13 +54,27 @@ function App() {
       </div>
       <div className='flex justify-end'>
         <div className="col mt-5 w-60 p-1">
-          <input className="border border-black-800 rounded-lg h-10 w-full px-2" type="text" placeholder="Username" />
+          <input
+            className="border border-black-800 rounded-lg h-10 w-full px-2"
+            type="text" placeholder="Username"
+            onChange={(e) => setCurrentUser(e.target.value)}
+          />
         </div>
         <div className="col mt-5 w-96 p-1">
-          <input className="border border-black-800 rounded-lg h-10 w-full px-2" type="text" placeholder="Type your message here" />
+          <input
+            className="border border-black-800 rounded-lg h-10 w-full px-2"
+            type="text"
+            placeholder="Type your message here"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}  
+          />
         </div>
         <div className="col mt-5 w-20 p-1">
-          <button className="border border-black-800 rounded-lg h-10 w-full px-2 bg-blue-600 text-white" type="button">Send</button>
+          <button
+            className="border border-black-800 rounded-lg h-10 w-full px-2 bg-blue-600 text-white"
+            type="button"
+            onClick = {submitMessage}
+          >Send</button>
         </div>
       </div>
     </div>
