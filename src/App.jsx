@@ -3,7 +3,7 @@ import mircLogo from './assets/mirc.jpg'
 import './App.css'
 import io from 'socket.io-client'; 
 
-const socket = io.connect(process.env.SERVER_URL || 'http://localhost:3000'); 
+const socket = io.connect('https://chat-be-b2wz.onrender.com' || 'http://localhost:3000'); 
 
 function App() {
   const [messages, setMessages] = useState([])
