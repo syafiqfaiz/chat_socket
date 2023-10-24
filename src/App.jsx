@@ -6,7 +6,7 @@ import io from 'socket.io-client';
 const socket = io.connect(process.env.SERVER_URL || 'http://localhost:3000'); 
 
 function App() {
-  const [messages, setMessages] = useState([{ text: 'Welcome to Mirc', id: 1, sender: 'Mirc'},{ text: 'Welcome to 2', id: 2, sender: 'Mirc'}])
+  const [messages, setMessages] = useState([])
   const [currentUser, setCurrentUser] = useState('faiz')
   const [message, setMessage] = useState('')
 
